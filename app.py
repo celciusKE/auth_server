@@ -5,12 +5,10 @@ from datetime import datetime
 import os
 from flask_migrate import Migrate
 
-
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 oauth = OAuth(app)
-app.secret_key='password'
-gooogle=oauth.register(
+app.secret_key = 'password'
+google = oauth.register(
     name='google',
     client_id=os.getenv("600098052876-l430cauc1sh7q8dulimt5f3o84jivuvl.apps.googleusercontent.com"),
     client_secret=os.getenv("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"),
@@ -39,15 +37,21 @@ class Post(db.Model):
     def __repr__(self):
         return f"Post('{self.title}','{self.date_posted}','{self.content}')"
 
-@app.route('/submit')
-def index():
-    return render_template('login.html')
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
 
 @app.route('/login')
 def login():
     google = oauth.create_client('google')
     redirect_uri = url_for('authorize', _external=True)
     return google.authorize_redirect(redirect_uri)
+
 
 @app.route('/authorize')
 def authorize():
@@ -59,6 +63,8 @@ def authorize():
     session['profile'] = user_info
     session.permanent = True
     return redirect('/')
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run()
